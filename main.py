@@ -4,24 +4,25 @@
 # CLI entry point for the job scraper.
 #
 # Usage:
-#   python main.py                          # full run, print results
-#   python main.py --output results.csv     # also save to CSV
-#   python main.py --no-levels              # skip Levels.fyi lookups (faster)
-#   python main.py --min-salary 250000      # raise the salary floor
-#   python main.py --verbose                # print per-company fetch stats + skips
+#   py -3 main.py                          # full run, print results
+#   py -3 main.py --output results.csv     # also save to CSV
+#   py -3 main.py --no-levels              # skip Levels.fyi lookups (faster)
+#   py -3 main.py --min-salary 200000      # salary floor (default 200k)
+#   py -3 main.py --min-wlb 4.0           # WLB floor for direct ATS companies
+#   py -3 main.py --verbose                # print per-company fetch stats + skips
 #
 # Returns jobs that are:
 #   - Remote, full-time, direct-hire
-#   - Data scientist / ML / AI / applied scientist roles
-#   - At companies on our curated WLB + size list
-#   - Salary 200k+ (from posting or Levels.fyi estimate)
+#   - Data scientist / ML / AI / applied scientist / MLOps / LLM roles
+#   - At companies with Glassdoor WLB >= 4.0 (direct ATS), or any company (aggregators)
+#   - Salary 200k+ (from posting or Levels.fyi estimate), or unknown (included)
 
 import argparse
 import csv
 import sys
 from urllib.parse import urlparse, urlunparse
 
-from companies import COMPANIES, get_all_company_names
+from companies import get_high_wlb_companies, get_all_company_names
 from filters import apply_all_filters, meets_salary_threshold
 from salary import get_levels_salary, parse_salary_estimate
 from scraper import scrape_all_jobs
@@ -29,7 +30,14 @@ from scraper import scrape_all_jobs
 
 # ── Deduplication ──────────────────────────────────────────────────────────────
 
-_SOURCE_PRIORITY = {"greenhouse": 0, "lever": 1, "jobicy": 2, "remoteok": 3}
+_SOURCE_PRIORITY = {
+    "greenhouse": 0,
+    "lever": 1,
+    "ashby": 2,
+    "jobicy": 3,
+    "remoteok": 4,
+    "remotive": 5,
+}
 
 
 def _normalize_url(url: str) -> str:
@@ -50,10 +58,8 @@ def deduplicate(jobs: list[dict]) -> list[dict]:
     1. Normalized URL
     2. (company_name_lower, job_title_lower) pair
 
-    When duplicates exist, the record from the higher-priority source is kept:
-    Greenhouse > Lever > Jobicy > RemoteOK
+    When duplicates exist, the record from the higher-priority source is kept.
     """
-    # Sort so higher-priority sources come first
     sorted_jobs = sorted(
         jobs, key=lambda j: _SOURCE_PRIORITY.get(j.get("source", ""), 99)
     )
@@ -91,27 +97,34 @@ def print_results(results: list[dict]) -> None:
         print("\nNo jobs found matching your criteria.")
         return
 
-    print(f"\n{'─' * 100}")
-    print(f"  {'COMPANY':<20}  {'TITLE':<40}  {'SALARY':<25}  SOURCE")
-    print(f"{'─' * 100}")
+    sep = "-" * 110
+    print(f"\n{sep}")
+    print(f"  {'COMPANY':<25}  {'TITLE':<45}  {'SALARY':<22}  SOURCE")
+    print(sep)
 
     for job in results:
-        company = job.get("company_name", "")[:20]
-        title = job.get("job_title", "")[:40]
-        salary = job.get("salary_info", "unknown")[:25]
+        company = job.get("company_name", "")[:25]
+        title = job.get("job_title", "")[:45]
+        salary = job.get("salary_info", "unknown")[:22]
         source = job.get("source", "")
         url = job.get("url", "")
-        print(f"  {company:<20}  {title:<40}  {salary:<25}  {source}")
-        print(f"  {'':20}  {url}")
+        # Use ascii-safe output to avoid Windows cp1252 errors
+        line = f"  {company:<25}  {title:<45}  {salary:<22}  {source}"
+        try:
+            print(line)
+            print(f"  {'':25}  {url}")
+        except UnicodeEncodeError:
+            print(line.encode("ascii", "replace").decode("ascii"))
+            print(f"  {'':25}  {url}".encode("ascii", "replace").decode("ascii"))
         print()
 
-    print(f"{'─' * 100}")
+    print(sep)
     print(f"  {len(results)} job(s) found.")
 
 
 def write_csv(results: list[dict], path: str) -> None:
     """Write results to a CSV file."""
-    fieldnames = ["company_name", "job_title", "url", "salary_info", "source"]
+    fieldnames = ["company_name", "job_title", "url", "salary_info", "source", "glassdoor_wlb"]
     with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
@@ -143,6 +156,13 @@ def parse_args() -> argparse.Namespace:
         help="Minimum salary threshold in USD (default: 200000).",
     )
     parser.add_argument(
+        "--min-wlb",
+        type=float,
+        default=4.0,
+        metavar="SCORE",
+        help="Minimum Glassdoor WLB score for direct ATS companies (default: 4.0).",
+    )
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Print per-source fetch stats and reasons for skipped jobs.",
@@ -154,24 +174,40 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    company_names = get_all_company_names()
+
+    # Companies with WLB >= threshold (used for direct ATS and for name-matching aggregator results)
+    wlb_companies = get_high_wlb_companies(args.min_wlb)
+    company_names = get_all_company_names(args.min_wlb)
+
+    print(f"Company list: {len(wlb_companies)} companies with WLB >= {args.min_wlb}")
+    greenhouse_count = sum(1 for c in wlb_companies if c.get("greenhouse_slug"))
+    lever_count = sum(1 for c in wlb_companies if c.get("lever_slug"))
+    ashby_count = sum(1 for c in wlb_companies if c.get("ashby_slug"))
+    print(
+        f"  Direct ATS: {greenhouse_count} Greenhouse, {lever_count} Lever, {ashby_count} Ashby"
+    )
 
     # ── 1. Fetch ───────────────────────────────────────────────────────────────
-    print("Fetching jobs...")
-    all_jobs = scrape_all_jobs(COMPANIES, verbose=args.verbose)
-    print(f"  {len(all_jobs)} total postings retrieved.")
+    print("\nFetching jobs (concurrent for direct ATS sources)...")
+    all_jobs = scrape_all_jobs(wlb_companies, verbose=args.verbose)
+    print(f"  {len(all_jobs)} total raw postings retrieved.")
 
     # ── 2. Apply title / remote / employment-type / company-list filters ───────
     candidates = []
-    skip_counts = {"company": 0, "title": 0, "remote": 0, "employment": 0}
+    skip_counts = {
+        "company": 0, "title": 0, "remote": 0, "employment": 0,
+    }
 
     for job in all_jobs:
-        # Run each filter individually in verbose mode so we can report why
+        is_aggregator = job.get("is_aggregator", False)
+
         if args.verbose:
-            company_ok = job.get("company_name", "").lower().strip() in company_names
-            if not company_ok:
-                skip_counts["company"] += 1
-                continue
+            # Verbose: track skip reasons individually
+            if not is_aggregator:
+                company_ok = job.get("company_name", "").lower().strip() in company_names
+                if not company_ok:
+                    skip_counts["company"] += 1
+                    continue
 
             from filters import matches_title, is_remote, is_full_time
             if not matches_title(job):
@@ -202,11 +238,19 @@ def main() -> None:
     print(f"  {len(candidates)} candidates after deduplication.")
 
     # ── 4. Salary filter + Levels.fyi fallback ─────────────────────────────────
-    print("\nApplying salary filter..." + (" (Levels.fyi lookups enabled)" if not args.no_levels else " (--no-levels: skipping Levels.fyi)"))
+    levels_label = " (Levels.fyi lookups enabled)" if not args.no_levels else " (--no-levels: skipping Levels.fyi)"
+    print(f"\nApplying salary filter...{levels_label}")
 
     results = []
     for job in candidates:
-        passes, salary_info = meets_salary_threshold(job, threshold=args.min_salary)
+        passes, salary_info = meets_salary_threshold(job, threshold=args.min_salary, tolerance=30_000)
+
+        # Attach WLB score for CSV output
+        job["glassdoor_wlb"] = ""
+        from companies import get_company_by_name
+        company_entry = get_company_by_name(job.get("company_name", ""))
+        if company_entry:
+            job["glassdoor_wlb"] = company_entry.get("glassdoor_wlb_score", "")
 
         if passes is True:
             job["salary_info"] = salary_info
@@ -237,11 +281,9 @@ def main() -> None:
                 if args.verbose:
                     print(f"  SKIP (Levels.fyi estimate below threshold): {job['company_name']} — {levels_salary}")
             else:
-                # Estimate exists but unparseable — include with label
                 job["salary_info"] = levels_salary
                 results.append(job)
         else:
-            # No Levels.fyi data — include with unknown label so user can decide
             job["salary_info"] = "unknown (not on Levels.fyi)"
             results.append(job)
 
