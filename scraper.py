@@ -1,25 +1,28 @@
 # scraper.py
 #
-# Fetches job postings from four sources and normalizes them to a common schema.
+# Fetches job postings from six sources and normalizes them to a common schema.
+# Sources: Greenhouse, Lever, Ashby (direct ATS APIs) + Jobicy, RemoteOK, Remotive (aggregators).
 #
 # Normalized job schema:
 # {
 #     "company_name":       str,
 #     "job_title":          str,
 #     "url":                str,
-#     "location_raw":       str,   # raw location string for remote detection
+#     "location_raw":       str,
 #     "tags":               list[str],
-#     "employment_type_raw":str,   # raw commitment/type string
-#     "description_text":   str,   # plain text for salary regex
+#     "employment_type_raw":str,
+#     "description_text":   str,
 #     "salary_min":         int | None,
 #     "salary_max":         int | None,
-#     "source":             str,   # "greenhouse" | "lever" | "jobicy" | "remoteok"
-#     "raw_id":             str,   # source-specific ID for deduplication
+#     "source":             str,  # "greenhouse"|"lever"|"ashby"|"jobicy"|"remoteok"|"remotive"
+#     "raw_id":             str,
+#     "is_aggregator":      bool, # True for jobicy/remoteok/remotive
 # }
 
 import re
 import time
 import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
@@ -90,7 +93,6 @@ def _greenhouse_salary_from_metadata(metadata: list) -> tuple[int | None, int | 
         if any(kw in name for kw in ("salary", "compensation", "pay", "comp")):
             value = field.get("value")
             if value:
-                # Value may be a string like "$150,000 - $200,000" or a number
                 from filters import extract_salary_from_text
                 lo, hi = extract_salary_from_text(str(value))
                 if lo or hi:
@@ -128,12 +130,13 @@ def fetch_greenhouse_jobs(company: dict) -> list[dict]:
                 "url": job.get("absolute_url", ""),
                 "location_raw": location,
                 "tags": [],
-                "employment_type_raw": "",  # Greenhouse board API lacks this field
+                "employment_type_raw": "",
                 "description_text": description_text,
                 "salary_min": salary_min,
                 "salary_max": salary_max,
                 "source": "greenhouse",
                 "raw_id": str(job.get("id", "")),
+                "is_aggregator": False,
             }
         )
     return results
@@ -164,7 +167,6 @@ def fetch_lever_jobs(company: dict) -> list[dict]:
         commitment = categories.get("commitment", "") or ""
         tags = job.get("tags") or []
 
-        # Prefer plain text; fall back to stripping HTML description
         description_text = job.get("descriptionPlain", "") or _html_to_text(
             job.get("description", "")
         )
@@ -182,22 +184,22 @@ def fetch_lever_jobs(company: dict) -> list[dict]:
                 "salary_max": None,
                 "source": "lever",
                 "raw_id": str(job.get("id", "")),
+                "is_aggregator": False,
             }
         )
     return results
 
 
-# ── Jobicy ─────────────────────────────────────────────────────────────────────
+# ── Ashby ──────────────────────────────────────────────────────────────────────
 
-_JOBICY_URL = (
-    "https://jobicy.com/api/v2/remote-jobs"
-    "?count=50&tag=data-science,machine-learning,artificial-intelligence"
-)
+def fetch_ashby_jobs(company: dict) -> list[dict]:
+    """Fetch all open jobs from a company's Ashby board.
 
-
-def fetch_jobicy_jobs() -> list[dict]:
-    """Fetch remote ML/AI jobs from Jobicy's free API."""
-    resp = safe_get(_JOBICY_URL)
+    API: https://api.ashbyhq.com/posting-api/job-board/{slug}?includeCompensation=true
+    """
+    slug = company["ashby_slug"]
+    url = f"https://api.ashbyhq.com/posting-api/job-board/{slug}?includeCompensation=true"
+    resp = safe_get(url)
     if resp is None:
         return []
 
@@ -206,33 +208,117 @@ def fetch_jobicy_jobs() -> list[dict]:
     except ValueError:
         return []
 
-    results = []
-    for job in data.get("jobs", []):
-        job_types = job.get("jobType") or []
-        emp_type = ", ".join(job_types) if job_types else ""
+    jobs_list = data.get("jobs") or []
+    if not isinstance(jobs_list, list):
+        return []
 
-        salary_min = job.get("annualSalaryMin")
-        salary_max = job.get("annualSalaryMax")
-        currency = job.get("salaryCurrency", "USD")
-        # Only use salary if it's in USD
-        if currency and currency.upper() != "USD":
-            salary_min = salary_max = None
+    results = []
+    for job in jobs_list:
+        location = job.get("locationName", "") or ""
+        is_remote = job.get("isRemote", False)
+        if is_remote and not location:
+            location = "Remote"
+
+        # Employment type
+        emp_type = job.get("employmentType", "") or ""
+
+        # Description
+        desc_html = job.get("descriptionHtml", "") or ""
+        description_text = _html_to_text(desc_html)
+
+        # Compensation from Ashby's compensation tiers
+        salary_min = None
+        salary_max = None
+        comp_tiers = job.get("compensationTierSummary", "") or ""
+        if comp_tiers:
+            from filters import extract_salary_from_text
+            salary_min, salary_max = extract_salary_from_text(comp_tiers)
+
+        # Also try description for salary
+        if salary_min is None:
+            from filters import extract_salary_from_text
+            salary_min, salary_max = extract_salary_from_text(description_text)
+
+        # Build URL: prefer externalLink, fall back to Ashby hosted page
+        job_url = (
+            job.get("externalLink")
+            or f"https://jobs.ashbyhq.com/{slug}/{job.get('id', '')}"
+        )
 
         results.append(
             {
-                "company_name": job.get("companyName", ""),
-                "job_title": job.get("jobTitle", ""),
-                "url": job.get("url", ""),
-                "location_raw": job.get("jobGeo", ""),
-                "tags": list(job.get("jobIndustry") or []),
+                "company_name": company["name"],
+                "job_title": job.get("title", ""),
+                "url": job_url,
+                "location_raw": location,
+                "tags": list(job.get("departmentName", "").split() if job.get("departmentName") else []),
                 "employment_type_raw": emp_type,
-                "description_text": _html_to_text(job.get("jobDescription", "")),
-                "salary_min": int(salary_min) if salary_min else None,
-                "salary_max": int(salary_max) if salary_max else None,
-                "source": "jobicy",
+                "description_text": description_text,
+                "salary_min": salary_min,
+                "salary_max": salary_max,
+                "source": "ashby",
                 "raw_id": str(job.get("id", "")),
+                "is_aggregator": False,
             }
         )
+    return results
+
+
+# ── Jobicy ─────────────────────────────────────────────────────────────────────
+
+_JOBICY_URLS = [
+    "https://jobicy.com/api/v2/remote-jobs?count=50&tag=data-science",
+    "https://jobicy.com/api/v2/remote-jobs?count=50&tag=machine-learning",
+    "https://jobicy.com/api/v2/remote-jobs?count=50&tag=artificial-intelligence",
+]
+
+
+def fetch_jobicy_jobs() -> list[dict]:
+    """Fetch remote ML/AI jobs from Jobicy's free API across multiple tags."""
+    seen_ids: set[str] = set()
+    results: list[dict] = []
+
+    for url in _JOBICY_URLS:
+        resp = safe_get(url)
+        if resp is None:
+            continue
+        try:
+            data = resp.json()
+        except ValueError:
+            continue
+
+        for job in data.get("jobs", []):
+            job_id = str(job.get("id", ""))
+            if job_id in seen_ids:
+                continue
+            seen_ids.add(job_id)
+
+            job_types = job.get("jobType") or []
+            emp_type = ", ".join(job_types) if job_types else ""
+
+            salary_min = job.get("annualSalaryMin")
+            salary_max = job.get("annualSalaryMax")
+            currency = job.get("salaryCurrency", "USD")
+            if currency and currency.upper() != "USD":
+                salary_min = salary_max = None
+
+            results.append(
+                {
+                    "company_name": job.get("companyName", ""),
+                    "job_title": job.get("jobTitle", ""),
+                    "url": job.get("url", ""),
+                    "location_raw": job.get("jobGeo", ""),
+                    "tags": list(job.get("jobIndustry") or []),
+                    "employment_type_raw": emp_type,
+                    "description_text": _html_to_text(job.get("jobDescription", "")),
+                    "salary_min": int(salary_min) if salary_min else None,
+                    "salary_max": int(salary_max) if salary_max else None,
+                    "source": "jobicy",
+                    "raw_id": job_id,
+                    "is_aggregator": True,
+                }
+            )
+
     return results
 
 
@@ -266,12 +352,11 @@ def fetch_remoteok_jobs() -> list[dict]:
         return []
 
     results = []
-    for job in data[1:]:  # skip index 0 (legal object)
+    for job in data[1:]:
         if not isinstance(job, dict):
             continue
 
         tags = list(job.get("tags") or [])
-        # RemoteOK tags sometimes encode employment type — pull them out
         type_tags = [t for t in tags if re.search(r"contract|part.time|intern", t, re.IGNORECASE)]
         emp_type = ", ".join(type_tags) if type_tags else ""
 
@@ -291,8 +376,84 @@ def fetch_remoteok_jobs() -> list[dict]:
                 "salary_max": int(salary_max) if salary_max else None,
                 "source": "remoteok",
                 "raw_id": str(job.get("id", "")),
+                "is_aggregator": True,
             }
         )
+    return results
+
+
+# ── Remotive ───────────────────────────────────────────────────────────────────
+
+_REMOTIVE_URLS = [
+    "https://remotive.com/api/remote-jobs?category=data&limit=200",
+    "https://remotive.com/api/remote-jobs?category=software-dev&limit=200",
+    "https://remotive.com/api/remote-jobs?category=product&limit=100",
+]
+
+_REMOTIVE_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json",
+}
+
+
+def fetch_remotive_jobs() -> list[dict]:
+    """Fetch remote jobs from Remotive's free API across multiple categories."""
+    seen_ids: set[str] = set()
+    results: list[dict] = []
+
+    for url in _REMOTIVE_URLS:
+        resp = safe_get(url, headers=_REMOTIVE_HEADERS)
+        if resp is None:
+            continue
+
+        try:
+            data = resp.json()
+        except ValueError:
+            continue
+
+        for job in data.get("jobs", []):
+            job_id = str(job.get("id", ""))
+            if job_id in seen_ids:
+                continue
+            seen_ids.add(job_id)
+
+            # Salary: Remotive sometimes provides a salary string like "$150K-200K"
+            salary_str = job.get("salary", "") or ""
+            salary_min: int | None = None
+            salary_max: int | None = None
+            if salary_str:
+                from filters import extract_salary_from_text
+                salary_min, salary_max = extract_salary_from_text(salary_str)
+
+            # Location
+            location = job.get("candidate_required_location", "") or ""
+            if not location:
+                location = "Remote"
+
+            # Employment type
+            job_type = job.get("job_type", "") or ""
+
+            results.append(
+                {
+                    "company_name": job.get("company_name", ""),
+                    "job_title": job.get("title", ""),
+                    "url": job.get("url", ""),
+                    "location_raw": location,
+                    "tags": list(job.get("tags") or []),
+                    "employment_type_raw": job_type,
+                    "description_text": _html_to_text(job.get("description", "")),
+                    "salary_min": salary_min,
+                    "salary_max": salary_max,
+                    "source": "remotive",
+                    "raw_id": job_id,
+                    "is_aggregator": True,
+                }
+            )
+
     return results
 
 
@@ -301,39 +462,70 @@ def fetch_remoteok_jobs() -> list[dict]:
 def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
     """Fetch jobs from all sources and return a flat normalized list.
 
-    Greenhouse and Lever are queried per-company.
-    Jobicy and RemoteOK are queried once globally.
+    Greenhouse, Lever, and Ashby are queried per-company using a thread pool.
+    Jobicy, RemoteOK, and Remotive are queried once globally.
     """
     all_jobs: list[dict] = []
     failed_companies: list[str] = []
 
-    # Greenhouse
+    # ── Direct ATS sources (concurrent) ───────────────────────────────────────
+
     greenhouse_companies = [c for c in companies if c.get("greenhouse_slug")]
-    if verbose:
-        print(f"[Greenhouse] Querying {len(greenhouse_companies)} companies...")
-    for company in greenhouse_companies:
-        try:
-            jobs = fetch_greenhouse_jobs(company)
-            if verbose:
-                print(f"  {company['name']}: {len(jobs)} jobs")
-            all_jobs.extend(jobs)
-        except Exception as exc:
-            failed_companies.append(f"{company['name']} (Greenhouse: {exc})")
-
-    # Lever
     lever_companies = [c for c in companies if c.get("lever_slug")]
-    if verbose:
-        print(f"[Lever] Querying {len(lever_companies)} companies...")
-    for company in lever_companies:
-        try:
-            jobs = fetch_lever_jobs(company)
-            if verbose:
-                print(f"  {company['name']}: {len(jobs)} jobs")
-            all_jobs.extend(jobs)
-        except Exception as exc:
-            failed_companies.append(f"{company['name']} (Lever: {exc})")
+    ashby_companies = [c for c in companies if c.get("ashby_slug")]
 
-    # Jobicy
+    total_direct = len(greenhouse_companies) + len(lever_companies) + len(ashby_companies)
+    if verbose:
+        print(
+            f"[Direct ATS] {len(greenhouse_companies)} Greenhouse + "
+            f"{len(lever_companies)} Lever + "
+            f"{len(ashby_companies)} Ashby companies "
+            f"({total_direct} total, fetching concurrently)..."
+        )
+
+    def _fetch_company(company: dict, ats: str) -> tuple[str, list[dict]]:
+        try:
+            if ats == "greenhouse":
+                return company["name"], fetch_greenhouse_jobs(company)
+            elif ats == "lever":
+                return company["name"], fetch_lever_jobs(company)
+            elif ats == "ashby":
+                return company["name"], fetch_ashby_jobs(company)
+        except Exception as exc:
+            return company["name"], [("__error__", str(exc))]
+        return company["name"], []
+
+    tasks = (
+        [(c, "greenhouse") for c in greenhouse_companies]
+        + [(c, "lever") for c in lever_companies]
+        + [(c, "ashby") for c in ashby_companies]
+    )
+
+    # Use up to 20 threads — enough concurrency without hammering servers
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        futures = {
+            executor.submit(_fetch_company, company, ats): (company["name"], ats)
+            for company, ats in tasks
+        }
+        for future in as_completed(futures):
+            name, ats = futures[future]
+            try:
+                company_name, jobs = future.result()
+                # Check for error sentinel
+                if jobs and isinstance(jobs[0], tuple) and jobs[0][0] == "__error__":
+                    failed_companies.append(f"{company_name} ({ats}: {jobs[0][1]})")
+                else:
+                    if verbose and jobs:
+                        print(f"  [{ats}] {company_name}: {len(jobs)} jobs")
+                    all_jobs.extend(jobs)
+            except Exception as exc:
+                failed_companies.append(f"{name} ({ats}: {exc})")
+
+    if verbose:
+        print(f"  Direct ATS total: {len(all_jobs)} raw jobs")
+
+    # ── Aggregator sources ─────────────────────────────────────────────────────
+
     if verbose:
         print("[Jobicy] Fetching remote ML/AI jobs...")
     try:
@@ -344,7 +536,6 @@ def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
     except Exception as exc:
         failed_companies.append(f"Jobicy ({exc})")
 
-    # RemoteOK
     if verbose:
         print("[RemoteOK] Fetching remote jobs...")
     try:
@@ -355,7 +546,19 @@ def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
     except Exception as exc:
         failed_companies.append(f"RemoteOK ({exc})")
 
+    if verbose:
+        print("[Remotive] Fetching remote ML/AI jobs (data + software-dev categories)...")
+    try:
+        jobs = fetch_remotive_jobs()
+        if verbose:
+            print(f"  {len(jobs)} jobs found")
+        all_jobs.extend(jobs)
+    except Exception as exc:
+        failed_companies.append(f"Remotive ({exc})")
+
     if failed_companies:
-        print(f"\n[WARN] Failed sources: {', '.join(failed_companies)}")
+        print(f"\n[WARN] Failed sources ({len(failed_companies)}): {', '.join(failed_companies[:20])}")
+        if len(failed_companies) > 20:
+            print(f"  ... and {len(failed_companies) - 20} more")
 
     return all_jobs
