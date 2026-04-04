@@ -457,6 +457,186 @@ def fetch_remotive_jobs() -> list[dict]:
     return results
 
 
+# ── Himalayas ─────────────────────────────────────────────────────────────────
+
+_HIMALAYAS_URLS = [
+    "https://himalayas.app/api/jobs?limit=100&skills=machine-learning",
+    "https://himalayas.app/api/jobs?limit=100&skills=data-science",
+    "https://himalayas.app/api/jobs?limit=100&skills=deep-learning",
+    "https://himalayas.app/api/jobs?limit=100&skills=artificial-intelligence",
+    "https://himalayas.app/api/jobs?limit=100&skills=natural-language-processing",
+]
+
+
+def fetch_himalayas_jobs() -> list[dict]:
+    """Fetch remote jobs from Himalayas.app free API. Has structured salary fields."""
+    seen_ids: set[str] = set()
+    results: list[dict] = []
+
+    for url in _HIMALAYAS_URLS:
+        resp = safe_get(url)
+        if resp is None:
+            continue
+        try:
+            data = resp.json()
+        except ValueError:
+            continue
+
+        jobs_list = data.get("jobs") or []
+        for job in jobs_list:
+            job_id = str(job.get("id", "") or job.get("guid", ""))
+            if job_id in seen_ids:
+                continue
+            seen_ids.add(job_id)
+
+            # Salary — Himalayas provides numeric min/max
+            salary_min = job.get("minSalary") or job.get("salaryMin")
+            salary_max = job.get("maxSalary") or job.get("salaryMax")
+            currency = job.get("currency", "USD") or "USD"
+            if currency.upper() != "USD":
+                salary_min = salary_max = None
+
+            # Location / remote
+            location = job.get("locationRestrictions") or job.get("location") or "Remote"
+            if isinstance(location, list):
+                location = ", ".join(location)
+
+            emp_type = job.get("employmentType") or job.get("jobType") or ""
+
+            desc_html = job.get("description") or job.get("descriptionHtml") or ""
+            description = _html_to_text(desc_html)
+
+            job_url = (
+                job.get("applicationLink")
+                or job.get("url")
+                or job.get("applyUrl")
+                or ""
+            )
+
+            results.append(
+                {
+                    "company_name": job.get("companyName") or job.get("company") or "",
+                    "job_title": job.get("title") or "",
+                    "url": job_url,
+                    "location_raw": str(location),
+                    "tags": list(job.get("categories") or []),
+                    "employment_type_raw": str(emp_type),
+                    "description_text": description,
+                    "salary_min": int(salary_min) if salary_min else None,
+                    "salary_max": int(salary_max) if salary_max else None,
+                    "source": "himalayas",
+                    "raw_id": job_id,
+                    "is_aggregator": True,
+                }
+            )
+
+    return results
+
+
+# ── Working Nomads ─────────────────────────────────────────────────────────────
+
+_WORKINGNOMADS_URL = "https://www.workingnomads.com/api/exposed_jobs/"
+
+
+def fetch_workingnomads_jobs() -> list[dict]:
+    """Fetch remote jobs from Working Nomads free public API."""
+    resp = safe_get(_WORKINGNOMADS_URL)
+    if resp is None:
+        return []
+    try:
+        data = resp.json()
+    except ValueError:
+        return []
+
+    if not isinstance(data, list):
+        data = data.get("jobs") or data.get("results") or []
+
+    results = []
+    for job in data:
+        if not isinstance(job, dict):
+            continue
+
+        job_id = str(job.get("id", ""))
+        description = _html_to_text(job.get("description") or "")
+
+        from filters import extract_salary_from_text
+        salary_min, salary_max = extract_salary_from_text(description)
+
+        results.append(
+            {
+                "company_name": job.get("company_name") or job.get("company") or "",
+                "job_title": job.get("title") or "",
+                "url": job.get("url") or "",
+                "location_raw": job.get("location") or "Remote",
+                "tags": [job.get("category_name")] if job.get("category_name") else [],
+                "employment_type_raw": "",
+                "description_text": description,
+                "salary_min": salary_min,
+                "salary_max": salary_max,
+                "source": "workingnomads",
+                "raw_id": job_id,
+                "is_aggregator": True,
+            }
+        )
+    return results
+
+
+# ── Arbeit Now ─────────────────────────────────────────────────────────────────
+
+_ARBEITNOW_URL = "https://arbeitnow.com/api/job-board-api"
+
+
+def fetch_arbeitnow_jobs() -> list[dict]:
+    """Fetch remote jobs from Arbeit Now free API."""
+    resp = safe_get(_ARBEITNOW_URL)
+    if resp is None:
+        return []
+    try:
+        data = resp.json()
+    except ValueError:
+        return []
+
+    jobs_list = data.get("data") or data.get("jobs") or []
+    if isinstance(data, list):
+        jobs_list = data
+
+    results = []
+    for job in jobs_list:
+        if not isinstance(job, dict):
+            continue
+
+        # Only include explicitly remote jobs
+        if not job.get("remote", False):
+            continue
+
+        job_id = str(job.get("slug") or job.get("id") or "")
+        description = _html_to_text(job.get("description") or "")
+
+        from filters import extract_salary_from_text
+        salary_min, salary_max = extract_salary_from_text(description)
+
+        job_types = job.get("job_types") or []
+        emp_type = ", ".join(job_types) if job_types else ""
+
+        results.append(
+            {
+                "company_name": job.get("company_name") or "",
+                "job_title": job.get("title") or "",
+                "url": job.get("url") or "",
+                "location_raw": job.get("location") or "Remote",
+                "tags": list(job.get("tags") or []),
+                "employment_type_raw": emp_type,
+                "description_text": description,
+                "salary_min": salary_min,
+                "salary_max": salary_max,
+                "source": "arbeitnow",
+                "raw_id": job_id,
+                "is_aggregator": True,
+            }
+        )
+    return results
+
+
 # ── Coordinator ────────────────────────────────────────────────────────────────
 
 def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
@@ -492,7 +672,7 @@ def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
             elif ats == "ashby":
                 return company["name"], fetch_ashby_jobs(company)
         except Exception as exc:
-            return company["name"], [("__error__", str(exc))]
+            return company["name"], [{"__error__": str(exc)}]
         return company["name"], []
 
     tasks = (
@@ -512,8 +692,8 @@ def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
             try:
                 company_name, jobs = future.result()
                 # Check for error sentinel
-                if jobs and isinstance(jobs[0], tuple) and jobs[0][0] == "__error__":
-                    failed_companies.append(f"{company_name} ({ats}: {jobs[0][1]})")
+                if jobs and isinstance(jobs[0], dict) and "__error__" in jobs[0]:
+                    failed_companies.append(f"{company_name} ({ats}: {jobs[0]['__error__']})")
                 else:
                     if verbose and jobs:
                         print(f"  [{ats}] {company_name}: {len(jobs)} jobs")
@@ -555,6 +735,36 @@ def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
         all_jobs.extend(jobs)
     except Exception as exc:
         failed_companies.append(f"Remotive ({exc})")
+
+    if verbose:
+        print("[Himalayas] Fetching remote ML/AI jobs by skill...")
+    try:
+        jobs = fetch_himalayas_jobs()
+        if verbose:
+            print(f"  {len(jobs)} jobs found")
+        all_jobs.extend(jobs)
+    except Exception as exc:
+        failed_companies.append(f"Himalayas ({exc})")
+
+    if verbose:
+        print("[Working Nomads] Fetching remote jobs...")
+    try:
+        jobs = fetch_workingnomads_jobs()
+        if verbose:
+            print(f"  {len(jobs)} jobs found")
+        all_jobs.extend(jobs)
+    except Exception as exc:
+        failed_companies.append(f"WorkingNomads ({exc})")
+
+    if verbose:
+        print("[Arbeit Now] Fetching remote jobs...")
+    try:
+        jobs = fetch_arbeitnow_jobs()
+        if verbose:
+            print(f"  {len(jobs)} jobs found")
+        all_jobs.extend(jobs)
+    except Exception as exc:
+        failed_companies.append(f"ArbeitNow ({exc})")
 
     if failed_companies:
         print(f"\n[WARN] Failed sources ({len(failed_companies)}): {', '.join(failed_companies[:20])}")

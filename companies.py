@@ -188,6 +188,82 @@ COMPANIES = [
     {"name": "Scale AI", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "scaleai", "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1000, "notes": "AI data platform"},
     {"name": "Weights & Biases (Ashby)", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "wandb", "glassdoor_wlb_score": 4.4, "employee_count_estimate": 500, "notes": "Try Ashby as fallback"},
 
+    # ── MORE GREENHOUSE ────────────────────────────────────────────────────────
+    # Biotech / life-science
+    {"name": "Vertex Pharmaceuticals", "greenhouse_slug": "vrtx", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 4500, "notes": ""},
+    {"name": "Regeneron", "greenhouse_slug": "regeneron", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 11000, "notes": "Strong computational biology"},
+    {"name": "Gilead Sciences", "greenhouse_slug": "gilead", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 17000, "notes": ""},
+    {"name": "Biogen", "greenhouse_slug": "biogen", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 7500, "notes": ""},
+    {"name": "Natera", "greenhouse_slug": "natera", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 3000, "notes": "Genomics / liquid biopsy"},
+    {"name": "Insitro", "greenhouse_slug": "insitro", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 300, "notes": "AI drug discovery"},
+    # SaaS / productivity
+    {"name": "monday.com", "greenhouse_slug": "mondaydotcom", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 2000, "notes": ""},
+    {"name": "Smartsheet", "greenhouse_slug": "smartsheet", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 3000, "notes": ""},
+    {"name": "Sprout Social", "greenhouse_slug": "sproutsocial", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 900, "notes": ""},
+    {"name": "Coursera", "greenhouse_slug": "coursera", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 1500, "notes": "EdTech"},
+    {"name": "Pluralsight", "greenhouse_slug": "pluralsight", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 1700, "notes": "Tech learning"},
+    {"name": "Udemy", "greenhouse_slug": "udemy", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 1600, "notes": "EdTech"},
+    {"name": "Credit Karma", "greenhouse_slug": "creditkarma", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 1600, "notes": "Intuit subsidiary; strong ML team"},
+    {"name": "NerdWallet", "greenhouse_slug": "nerdwallet", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 800, "notes": ""},
+    {"name": "Klarna", "greenhouse_slug": "klarna", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 5000, "notes": "BNPL fintech"},
+    {"name": "Nubank", "greenhouse_slug": "nubank", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 7000, "notes": "Latin American neobank"},
+    # Cybersecurity
+    {"name": "Rapid7", "greenhouse_slug": "rapid7", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 2500, "notes": ""},
+    {"name": "Tenable", "greenhouse_slug": "tenable", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 2000, "notes": ""},
+    {"name": "Abnormal Security", "greenhouse_slug": "abnormalsecurity", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 700, "notes": "AI email security"},
+    {"name": "Huntress", "greenhouse_slug": "huntress", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 500, "notes": ""},
+    {"name": "Lacework", "greenhouse_slug": "lacework", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 800, "notes": "Cloud security"},
+    {"name": "Illumio", "greenhouse_slug": "illumio", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 900, "notes": "Zero trust security"},
+    # Gaming
+    {"name": "Bungie", "greenhouse_slug": "bungie", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 1200, "notes": "Destiny; Sony subsidiary"},
+    {"name": "Electronic Arts", "greenhouse_slug": "electronicarts", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 12000, "notes": ""},
+    {"name": "King", "greenhouse_slug": "king", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 2000, "notes": "Mobile gaming; Activision Blizzard subsidiary"},
+    {"name": "Zynga", "greenhouse_slug": "zynga", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 3600, "notes": "Mobile gaming"},
+    # Data / analytics platforms
+    {"name": "Alteryx", "greenhouse_slug": "alteryx", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 2500, "notes": ""},
+    {"name": "ThoughtSpot", "greenhouse_slug": "thoughtspot", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 900, "notes": "AI analytics"},
+    {"name": "Informatica", "greenhouse_slug": "informatica", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 5000, "notes": "Data management"},
+    {"name": "Qlik", "greenhouse_slug": "qlik", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 3500, "notes": "BI / analytics"},
+    # Infrastructure / cloud
+    {"name": "RingCentral", "greenhouse_slug": "ringcentral", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 6000, "notes": "UCaaS"},
+    {"name": "Cloudinary", "greenhouse_slug": "cloudinary", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 600, "notes": ""},
+    {"name": "JFrog", "greenhouse_slug": "jfrog", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 1500, "notes": "DevOps / software supply chain"},
+    {"name": "Harness", "greenhouse_slug": "harness", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 1000, "notes": "CI/CD platform"},
+    {"name": "LaunchDarkly", "greenhouse_slug": "launchdarkly", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 600, "notes": "Feature management; remote-first"},
+    {"name": "Honeycomb", "greenhouse_slug": "honeycombio", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 200, "notes": "Observability; remote-first"},
+
+    # ── MORE LEVER ─────────────────────────────────────────────────────────────
+    {"name": "Scale AI", "greenhouse_slug": None, "lever_slug": "scaleai", "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1000, "notes": "AI data platform"},
+    {"name": "Benchling", "greenhouse_slug": None, "lever_slug": "benchling", "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 1000, "notes": "Life science R&D"},
+    {"name": "AllenAI (AI2)", "greenhouse_slug": None, "lever_slug": "allenai", "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 300, "notes": "Non-profit AI research lab"},
+    {"name": "Lambda", "greenhouse_slug": None, "lever_slug": "lambdalabs", "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 300, "notes": "GPU cloud; remote-first"},
+    {"name": "Stability AI", "greenhouse_slug": None, "lever_slug": "stabilityai", "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 200, "notes": "Generative AI images"},
+    {"name": "Exabeam", "greenhouse_slug": None, "lever_slug": "exabeam", "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 800, "notes": "SIEM / cybersecurity"},
+    {"name": "CyberArk", "greenhouse_slug": None, "lever_slug": "cyberark", "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 3500, "notes": "Identity security"},
+    {"name": "Five9", "greenhouse_slug": None, "lever_slug": "five9", "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 2000, "notes": "Cloud contact center; AI"},
+    {"name": "Mimecast", "greenhouse_slug": None, "lever_slug": "mimecast", "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 1800, "notes": "Email security"},
+    {"name": "Brainware / Yext", "greenhouse_slug": None, "lever_slug": "yext", "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1500, "notes": "AI search"},
+    {"name": "Kustomer", "greenhouse_slug": None, "lever_slug": "kustomer", "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 300, "notes": "CRM / AI customer service"},
+    {"name": "Podium", "greenhouse_slug": None, "lever_slug": "podium", "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1700, "notes": "Local business AI"},
+    {"name": "Navan", "greenhouse_slug": None, "lever_slug": "navan", "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 3000, "notes": "Travel & expense; formerly TripActions"},
+    {"name": "Arctic Wolf", "greenhouse_slug": None, "lever_slug": "arcticwolf", "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 2500, "notes": "Cybersecurity"},
+
+    # ── MORE ASHBY ─────────────────────────────────────────────────────────────
+    {"name": "Baseten", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "baseten", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 100, "notes": "ML model deployment"},
+    {"name": "Lepton AI", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "lepton", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 50, "notes": "AI inference platform"},
+    {"name": "Mistral (Ashby)", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "mistralai", "glassdoor_wlb_score": 4.3, "employee_count_estimate": 200, "notes": "Ashby fallback for Mistral"},
+    {"name": "Cohere (Ashby)", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "cohere", "glassdoor_wlb_score": 4.3, "employee_count_estimate": 500, "notes": "Ashby fallback for Cohere"},
+    {"name": "Inflection AI", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "inflection", "glassdoor_wlb_score": 4.3, "employee_count_estimate": 100, "notes": "AI models; now partly Microsoft"},
+    {"name": "Adept AI", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "adept", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 100, "notes": "AI agents"},
+    {"name": "Contextual AI", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "contextual", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 100, "notes": "Enterprise RAG"},
+    {"name": "Cartesia AI", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "cartesia", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 50, "notes": "Real-time AI models"},
+    {"name": "Moonhub", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "moonhub", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 50, "notes": "AI recruiting"},
+    {"name": "Dify.ai", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "dify", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 50, "notes": "LLM app development platform"},
+    {"name": "Coframe", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "coframe", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 30, "notes": "AI for UI optimization"},
+    {"name": "Harvey AI", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "harvey", "glassdoor_wlb_score": 4.3, "employee_count_estimate": 200, "notes": "AI for legal work"},
+    {"name": "Coreweave", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "coreweave", "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1000, "notes": "GPU cloud; major AI infra"},
+    {"name": "Weights & Biases Ashby", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "weights-and-biases", "glassdoor_wlb_score": 4.4, "employee_count_estimate": 500, "notes": "W&B Ashby fallback slug"},
+
     # ── AGGREGATOR-ONLY (own portals — caught via Jobicy / RemoteOK / Remotive) ─
 
     # Big Tech
