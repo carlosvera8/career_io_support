@@ -28,7 +28,7 @@ import json
 
 import requests
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
-from filters import extract_salary_from_text
+from .filters import extract_salary_from_text
 
 warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 

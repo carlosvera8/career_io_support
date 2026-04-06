@@ -5,7 +5,7 @@ Find remote ML/AI/data science jobs at high work-life balance companies paying $
 ## Quick start
 
 ```bash
-py main.py --output results.csv
+py main.py --output output/results.csv
 ```
 
 ## All options
@@ -41,12 +41,12 @@ Open this project in Claude Code and say:
 
 > "refresh the Dice cache"
 
-Claude will search Dice for remote full-time ML/AI roles across multiple keywords and write the results to `dice_cache.json`.
+Claude will search Dice for remote full-time ML/AI roles across multiple keywords and write the results to `output/dice_cache.json`.
 
 **Step 2 — Run the pipeline with the cache**
 
 ```bash
-py main.py --dice-cache dice_cache.json --output results.csv
+py main.py --dice-cache output/dice_cache.json --output output/results.csv
 ```
 
 The cache is optional — omitting `--dice-cache` runs the pipeline as normal without Dice results. Refresh the cache whenever you want up-to-date Dice listings.

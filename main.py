@@ -22,10 +22,10 @@ import csv
 import sys
 from urllib.parse import urlparse, urlunparse
 
-from companies import get_high_wlb_companies, get_all_company_names
-from filters import apply_all_filters, meets_salary_threshold
-from salary import get_levels_salary, parse_salary_estimate
-from scraper import scrape_all_jobs
+from src.companies import get_high_wlb_companies, get_all_company_names, get_company_by_name
+from src.filters import apply_all_filters, meets_salary_threshold, matches_title, is_remote, is_full_time
+from src.salary import get_levels_salary, parse_salary_estimate
+from src.scraper import scrape_all_jobs
 
 
 # ── Deduplication ──────────────────────────────────────────────────────────────
@@ -215,7 +215,6 @@ def main() -> None:
                     skip_counts["company"] += 1
                     continue
 
-            from filters import matches_title, is_remote, is_full_time
             if not matches_title(job):
                 skip_counts["title"] += 1
                 continue
@@ -253,7 +252,6 @@ def main() -> None:
 
         # Attach WLB score for CSV output
         job["glassdoor_wlb"] = ""
-        from companies import get_company_by_name
         company_entry = get_company_by_name(job.get("company_name", ""))
         if company_entry:
             job["glassdoor_wlb"] = company_entry.get("glassdoor_wlb_score", "")
