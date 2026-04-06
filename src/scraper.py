@@ -2,7 +2,8 @@
 #
 # Fetches job postings from multiple sources and normalizes them to a common schema.
 # Sources: Greenhouse, Lever, Ashby (direct ATS APIs) + Jobicy, RemoteOK, Remotive,
-#          Himalayas, Working Nomads, Arbeit Now (aggregators) + Dice (MCP cache).
+#          Himalayas, Working Nomads, Arbeit Now, HN "Who's Hiring" (aggregators)
+#          + Dice (MCP cache).
 #
 # Normalized job schema:
 # {
@@ -15,9 +16,11 @@
 #     "description_text":   str,
 #     "salary_min":         int | None,
 #     "salary_max":         int | None,
-#     "source":             str,  # "greenhouse"|"lever"|"ashby"|"jobicy"|"remoteok"|"remotive"
+#     "source":             str,  # "greenhouse"|"lever"|"ashby"|"jobicy"|"remoteok"|
+#                                 # "remotive"|"himalayas"|"workingnomads"|"arbeitnow"|
+#                                 # "hn_hiring"|"dice"
 #     "raw_id":             str,
-#     "is_aggregator":      bool, # True for jobicy/remoteok/remotive
+#     "is_aggregator":      bool,
 # }
 
 import re
@@ -28,7 +31,7 @@ import json
 
 import requests
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
-from .filters import extract_salary_from_text
+from .filters import extract_salary_from_text, TITLE_PATTERN
 
 warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
@@ -632,6 +635,144 @@ def fetch_arbeitnow_jobs() -> list[dict]:
     return results
 
 
+# ── HN "Who's Hiring" ─────────────────────────────────────────────────────────
+
+_HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
+_HN_WHOISHIRING_USER = "whoishiring"
+_HN_MAX_COMMENTS = 500
+
+_HN_ML_KEYWORDS = re.compile(
+    r"\b(machine\s+learning|deep\s+learning|data\s+scien|MLOps|NLP|LLM|"
+    r"applied\s+scien|artificial\s+intelligence|data\s+engineer|"
+    r"computer\s+vision|reinforcement\s+learning|generative\s+AI|GenAI|"
+    r"\bML\b|\bAI\b)\b",
+    re.IGNORECASE,
+)
+
+
+def _fetch_hn_item(item_id: int) -> dict | None:
+    """Fetch a single HN item by ID."""
+    resp = safe_get(f"{_HN_API_BASE}/item/{item_id}.json")
+    if resp is None:
+        return None
+    try:
+        return resp.json()
+    except ValueError:
+        return None
+
+
+def _parse_hn_post(first_line: str) -> tuple[str, str]:
+    """Extract (company_name, job_title) from the first line of an HN hiring post.
+
+    HN convention: 'Company | Role | Location | ...'
+    Falls back to the whole first line as company name with empty title.
+    """
+    parts = [p.strip() for p in first_line.split("|")]
+    if len(parts) >= 2:
+        company = re.sub(r"\s*\(.*?\)\s*$", "", parts[0]).strip()
+        return company, parts[1].strip()
+    return first_line.strip()[:80], ""
+
+
+def fetch_hn_hiring_jobs() -> list[dict]:
+    """Fetch ML/AI remote jobs from the HN 'Ask HN: Who is hiring?' thread.
+
+    Uses the official HN Firebase API — no auth, no ToS concerns.
+    Only returns comments that mention 'remote' and at least one ML/AI keyword.
+    """
+    # Find the most recent "Ask HN: Who is hiring?" post
+    user_resp = safe_get(f"{_HN_API_BASE}/user/{_HN_WHOISHIRING_USER}.json")
+    if user_resp is None:
+        return []
+    try:
+        user_data = user_resp.json()
+    except ValueError:
+        return []
+
+    hiring_post_id: int | None = None
+    for item_id in user_data.get("submitted") or []:
+        item = _fetch_hn_item(item_id)
+        if item and "who is hiring" in (item.get("title") or "").lower():
+            hiring_post_id = item_id
+            break
+
+    if hiring_post_id is None:
+        return []
+
+    post = _fetch_hn_item(hiring_post_id)
+    if post is None:
+        return []
+
+    kids = (post.get("kids") or [])[:_HN_MAX_COMMENTS]
+    if not kids:
+        return []
+
+    # Concurrently fetch all top-level comments
+    comments: list[dict] = []
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        futures = {executor.submit(_fetch_hn_item, kid_id): kid_id for kid_id in kids}
+        for future in as_completed(futures):
+            result = future.result()
+            if result and isinstance(result, dict):
+                comments.append(result)
+
+    results: list[dict] = []
+    for comment in comments:
+        if comment.get("deleted") or comment.get("dead"):
+            continue
+
+        text_html = comment.get("text") or ""
+        if not text_html:
+            continue
+
+        text = _html_to_text(text_html)
+
+        if not re.search(r"\bremote\b", text, re.IGNORECASE):
+            continue
+        if not _HN_ML_KEYWORDS.search(text):
+            continue
+
+        lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+        first_line = lines[0] if lines else ""
+        company_name, job_title = _parse_hn_post(first_line)
+
+        # If the parsed title isn't a recognizable role, scan the text for one
+        if not TITLE_PATTERN.search(job_title):
+            m = TITLE_PATTERN.search(text)
+            if m:
+                job_title = m.group(0)
+
+        salary_min, salary_max = extract_salary_from_text(text)
+
+        emp_type = ""
+        if re.search(r"\bfull[\s-]time\b", text, re.IGNORECASE):
+            emp_type = "Full-time"
+        elif re.search(r"\bcontract\b", text, re.IGNORECASE):
+            emp_type = "Contract"
+        elif re.search(r"\bpart[\s-]time\b", text, re.IGNORECASE):
+            emp_type = "Part-time"
+
+        comment_id = comment.get("id", "")
+        results.append(
+            {
+                "company_name": company_name,
+                "job_title": job_title,
+                "url": f"https://news.ycombinator.com/item?id={comment_id}",
+                "location_raw": "Remote",
+                "tags": [],
+                "employment_type_raw": emp_type,
+                "description_text": text,
+                "salary_min": salary_min,
+                "salary_max": salary_max,
+                "source": "hn_hiring",
+                "raw_id": str(comment_id),
+                "is_aggregator": True,
+            }
+        )
+
+    return results
+
+
 # ── Dice (MCP cache) ───────────────────────────────────────────────────────────
 
 def load_dice_cache(cache_path: str) -> list[dict]:
@@ -783,6 +924,16 @@ def scrape_all_jobs(
         all_jobs.extend(jobs)
     except Exception as exc:
         failed_companies.append(f"ArbeitNow ({exc})")
+
+    if verbose:
+        print("[HN Hiring] Fetching remote ML/AI jobs from 'Who is hiring?' thread...")
+    try:
+        jobs = fetch_hn_hiring_jobs()
+        if verbose:
+            print(f"  {len(jobs)} jobs found")
+        all_jobs.extend(jobs)
+    except Exception as exc:
+        failed_companies.append(f"HN Hiring ({exc})")
 
     if dice_cache_path:
         if verbose:

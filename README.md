@@ -5,15 +5,16 @@ Find remote ML/AI/data science jobs at high work-life balance companies paying $
 ## Quick start
 
 ```bash
-py main.py --output output/results.csv
+py main.py
 ```
+
+Results are always saved to `output/results_YYYYMMDD_HHMMSS.csv` so past runs are never overwritten.
 
 ## All options
 
 ```
 py main.py [options]
 
-  --output FILE         Save results to a CSV file
   --no-levels           Skip Levels.fyi salary lookups (faster)
   --min-salary AMOUNT   Minimum salary in USD (default: 200000)
   --min-wlb SCORE       Minimum Glassdoor WLB score for direct ATS companies (default: 4.0)
@@ -29,7 +30,7 @@ The pipeline scrapes jobs from two categories of source:
 - Greenhouse, Lever, Ashby
 
 **Aggregators** (broader job boards, filtered by title/remote/salary):
-- Jobicy, RemoteOK, Remotive, Himalayas, Working Nomads, Arbeit Now, Dice (via cache)
+- Jobicy, RemoteOK, Remotive, Himalayas, Working Nomads, Arbeit Now, HN "Who's Hiring" (official HN API), Dice (via cache)
 
 ## Dice integration (via Claude MCP)
 
@@ -46,7 +47,7 @@ Claude will search Dice for remote full-time ML/AI roles across multiple keyword
 **Step 2 — Run the pipeline with the cache**
 
 ```bash
-py main.py --dice-cache output/dice_cache.json --output output/results.csv
+py main.py --dice-cache output/dice_cache.json
 ```
 
 The cache is optional — omitting `--dice-cache` runs the pipeline as normal without Dice results. Refresh the cache whenever you want up-to-date Dice listings.

@@ -4,8 +4,7 @@
 # CLI entry point for the job scraper.
 #
 # Usage:
-#   py -3 main.py                          # full run, print results
-#   py -3 main.py --output results.csv     # also save to CSV
+#   py -3 main.py                          # full run, saves to output/results_YYYYMMDD_HHMMSS.csv
 #   py -3 main.py --no-levels              # skip Levels.fyi lookups (faster)
 #   py -3 main.py --min-salary 200000      # salary floor (default 200k)
 #   py -3 main.py --min-wlb 4.0           # WLB floor for direct ATS companies
@@ -19,7 +18,8 @@
 
 import argparse
 import csv
-import sys
+from datetime import datetime
+from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
 from src.companies import get_high_wlb_companies, get_all_company_names, get_company_by_name
@@ -37,7 +37,8 @@ _SOURCE_PRIORITY = {
     "jobicy": 3,
     "remoteok": 4,
     "remotive": 5,
-    "dice": 6,
+    "hn_hiring": 6,
+    "dice": 7,
 }
 
 
@@ -123,8 +124,9 @@ def print_results(results: list[dict]) -> None:
     print(f"  {len(results)} job(s) found.")
 
 
-def write_csv(results: list[dict], path: str) -> None:
+def write_csv(results: list[dict], path: Path) -> None:
     """Write results to a CSV file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = ["company_name", "job_title", "url", "salary_info", "source", "glassdoor_wlb"]
     with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
@@ -138,11 +140,6 @@ def write_csv(results: list[dict], path: str) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Find remote ML/AI jobs at high-WLB companies paying $200k+."
-    )
-    parser.add_argument(
-        "--output", "-o",
-        metavar="FILE",
-        help="Save results to a CSV file at this path.",
     )
     parser.add_argument(
         "--no-levels",
@@ -294,8 +291,9 @@ def main() -> None:
     # ── 5. Output ──────────────────────────────────────────────────────────────
     print_results(results)
 
-    if args.output:
-        write_csv(results, args.output)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_path = Path("output") / f"results_{timestamp}.csv"
+    write_csv(results, output_path)
 
 
 if __name__ == "__main__":

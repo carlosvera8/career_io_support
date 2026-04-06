@@ -233,8 +233,6 @@ COMPANIES = [
     {"name": "Honeycomb", "greenhouse_slug": "honeycombio", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 200, "notes": "Observability; remote-first"},
 
     # ── MORE LEVER ─────────────────────────────────────────────────────────────
-    {"name": "Scale AI", "greenhouse_slug": None, "lever_slug": "scaleai", "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1000, "notes": "AI data platform"},
-    {"name": "Benchling", "greenhouse_slug": None, "lever_slug": "benchling", "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 1000, "notes": "Life science R&D"},
     {"name": "AllenAI (AI2)", "greenhouse_slug": None, "lever_slug": "allenai", "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 300, "notes": "Non-profit AI research lab"},
     {"name": "Lambda", "greenhouse_slug": None, "lever_slug": "lambdalabs", "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 300, "notes": "GPU cloud; remote-first"},
     {"name": "Stability AI", "greenhouse_slug": None, "lever_slug": "stabilityai", "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 200, "notes": "Generative AI images"},
@@ -263,6 +261,34 @@ COMPANIES = [
     {"name": "Harvey AI", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "harvey", "glassdoor_wlb_score": 4.3, "employee_count_estimate": 200, "notes": "AI for legal work"},
     {"name": "Coreweave", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "coreweave", "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1000, "notes": "GPU cloud; major AI infra"},
     {"name": "Weights & Biases Ashby", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "weights-and-biases", "glassdoor_wlb_score": 4.4, "employee_count_estimate": 500, "notes": "W&B Ashby fallback slug"},
+
+    # ── GREENHOUSE (new additions) ────────────────────────────────────────────────
+
+    {"name": "Stripe", "greenhouse_slug": "stripe", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 8000, "notes": "Payments infrastructure"},
+    {"name": "Brex", "greenhouse_slug": "brex", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 1500, "notes": "Corporate cards / fintech"},
+    {"name": "Rippling", "greenhouse_slug": "rippling", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 3000, "notes": "HR/IT/finance platform"},
+    {"name": "Ramp", "greenhouse_slug": "ramp", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 1000, "notes": "Corporate spend management"},
+    {"name": "xAI", "greenhouse_slug": "xai-hq", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1000, "notes": "Elon Musk AI lab; Grok"},
+    {"name": "Poolside", "greenhouse_slug": "poolside", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 200, "notes": "AI for software engineering"},
+    {"name": "Wayve", "greenhouse_slug": "wayve", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 600, "notes": "Embodied AI / autonomous driving; UK"},
+    {"name": "Shield AI", "greenhouse_slug": "shield-ai", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 900, "notes": "Defense AI; autonomous aircraft"},
+    {"name": "Abridge", "greenhouse_slug": "abridge", "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.4, "employee_count_estimate": 150, "notes": "AI medical documentation"},
+
+    # ── LEVER (new additions) ─────────────────────────────────────────────────────
+
+    {"name": "Mercury", "greenhouse_slug": None, "lever_slug": "mercury", "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 700, "notes": "Banking for startups; remote-first"},
+    {"name": "Sardine", "greenhouse_slug": None, "lever_slug": "sardine", "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 200, "notes": "Fraud detection / compliance fintech"},
+    {"name": "Cognition", "greenhouse_slug": None, "lever_slug": "cognition-labs", "ashby_slug": None, "glassdoor_wlb_score": 4.3, "employee_count_estimate": 100, "notes": "AI software engineering (Devin)"},
+    {"name": "Coactive AI", "greenhouse_slug": None, "lever_slug": "coactive", "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 80, "notes": "Multimodal AI data platform"},
+
+    # ── ASHBY (new additions) ─────────────────────────────────────────────────────
+
+    {"name": "Supabase", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "supabase", "glassdoor_wlb_score": 4.5, "employee_count_estimate": 200, "notes": "Open-source Firebase alternative; fully remote"},
+    {"name": "Raycast", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "raycast", "glassdoor_wlb_score": 4.5, "employee_count_estimate": 60, "notes": "Developer productivity tool; remote-first"},
+    {"name": "Neon", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "neon", "glassdoor_wlb_score": 4.3, "employee_count_estimate": 100, "notes": "Serverless Postgres; remote-first"},
+    {"name": "MotherDuck", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "motherduck", "glassdoor_wlb_score": 4.4, "employee_count_estimate": 80, "notes": "Serverless analytics on DuckDB"},
+    {"name": "Unstructured", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "unstructuredio", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 100, "notes": "Data preprocessing for LLMs"},
+    {"name": "Magic", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": "magic", "glassdoor_wlb_score": 4.2, "employee_count_estimate": 80, "notes": "Long-context AI coding assistant"},
 
     # ── AGGREGATOR-ONLY (own portals — caught via Jobicy / RemoteOK / Remotive) ─
 
@@ -297,6 +323,14 @@ COMPANIES = [
     # Defense (WLB ≥ 4.0 only)
     {"name": "Lockheed Martin", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 114000, "notes": "Large ML/AI team (US citizenship often required)"},
     {"name": "Northrop Grumman", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 95000, "notes": ""},
+    # Consumer tech (WLB ≥ 4.0 only)
+    {"name": "Apple", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 164000, "notes": "Own portal; strong ML/AI research"},
+    {"name": "Amazon", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 1500000, "notes": "Own portal; AWS ML, Alexa, Amazon Science"},
+    {"name": "Uber", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 30000, "notes": "Own portal; strong ML for maps, pricing, safety"},
+    {"name": "Lyft", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 5000, "notes": "Own portal; ML for dispatch, pricing, ETA"},
+    {"name": "DoorDash", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.0, "employee_count_estimate": 16000, "notes": "Own portal; ML for logistics and recommendations"},
+    {"name": "Pinterest", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.2, "employee_count_estimate": 4000, "notes": "Own portal; strong CV and recommendation systems"},
+    {"name": "Snap", "greenhouse_slug": None, "lever_slug": None, "ashby_slug": None, "glassdoor_wlb_score": 4.1, "employee_count_estimate": 5000, "notes": "Own portal; strong AR/CV/ML team"},
 ]
 
 
