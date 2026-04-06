@@ -99,7 +99,6 @@ _SLUG_MAP: dict[str, str] = {
     "loom": "loom",
     "culture amp": "culture-amp",
     "dbt labs": "dbt-labs",
-    "airbyte": "airbyte",
     "glean": "glean",
     "weaviate": "weaviate",
     "pinecone": "pinecone",
@@ -203,8 +202,6 @@ _SLUG_MAP: dict[str, str] = {
     "abbvie": "abbvie",
     "abbott laboratories": "abbott",
     "bristol-myers squibb": "bristol-myers-squibb",
-    "moderna": "moderna",
-    "illumina": "illumina",
     # ── Defense ───────────────────────────────────────────────────────────────
     "lockheed martin": "lockheed-martin",
     "northrop grumman": "northrop-grumman",

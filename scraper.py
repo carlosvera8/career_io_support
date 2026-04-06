@@ -1,7 +1,8 @@
 # scraper.py
 #
-# Fetches job postings from six sources and normalizes them to a common schema.
-# Sources: Greenhouse, Lever, Ashby (direct ATS APIs) + Jobicy, RemoteOK, Remotive (aggregators).
+# Fetches job postings from multiple sources and normalizes them to a common schema.
+# Sources: Greenhouse, Lever, Ashby (direct ATS APIs) + Jobicy, RemoteOK, Remotive,
+#          Himalayas, Working Nomads, Arbeit Now (aggregators) + Dice (MCP cache).
 #
 # Normalized job schema:
 # {
@@ -27,6 +28,7 @@ import json
 
 import requests
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
+from filters import extract_salary_from_text
 
 warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
@@ -94,7 +96,6 @@ def _greenhouse_salary_from_metadata(metadata: list) -> tuple[int | None, int | 
         if any(kw in name for kw in ("salary", "compensation", "pay", "comp")):
             value = field.get("value")
             if value:
-                from filters import extract_salary_from_text
                 lo, hi = extract_salary_from_text(str(value))
                 if lo or hi:
                     return lo, hi
@@ -232,12 +233,10 @@ def fetch_ashby_jobs(company: dict) -> list[dict]:
         salary_max = None
         comp_tiers = job.get("compensationTierSummary", "") or ""
         if comp_tiers:
-            from filters import extract_salary_from_text
             salary_min, salary_max = extract_salary_from_text(comp_tiers)
 
         # Also try description for salary
         if salary_min is None:
-            from filters import extract_salary_from_text
             salary_min, salary_max = extract_salary_from_text(description_text)
 
         # Build URL: prefer externalLink, fall back to Ashby hosted page
@@ -427,7 +426,6 @@ def fetch_remotive_jobs() -> list[dict]:
             salary_min: int | None = None
             salary_max: int | None = None
             if salary_str:
-                from filters import extract_salary_from_text
                 salary_min, salary_max = extract_salary_from_text(salary_str)
 
             # Location
@@ -559,8 +557,6 @@ def fetch_workingnomads_jobs() -> list[dict]:
 
         job_id = str(job.get("id", ""))
         description = _html_to_text(job.get("description") or "")
-
-        from filters import extract_salary_from_text
         salary_min, salary_max = extract_salary_from_text(description)
 
         results.append(
@@ -612,8 +608,6 @@ def fetch_arbeitnow_jobs() -> list[dict]:
 
         job_id = str(job.get("slug") or job.get("id") or "")
         description = _html_to_text(job.get("description") or "")
-
-        from filters import extract_salary_from_text
         salary_min, salary_max = extract_salary_from_text(description)
 
         job_types = job.get("job_types") or []
