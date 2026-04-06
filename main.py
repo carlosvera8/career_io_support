@@ -37,6 +37,7 @@ _SOURCE_PRIORITY = {
     "jobicy": 3,
     "remoteok": 4,
     "remotive": 5,
+    "dice": 6,
 }
 
 
@@ -163,6 +164,11 @@ def parse_args() -> argparse.Namespace:
         help="Minimum Glassdoor WLB score for direct ATS companies (default: 4.0).",
     )
     parser.add_argument(
+        "--dice-cache",
+        metavar="FILE",
+        help="Path to a dice_cache.json file produced by Claude's MCP tool.",
+    )
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Print per-source fetch stats and reasons for skipped jobs.",
@@ -189,7 +195,7 @@ def main() -> None:
 
     # ── 1. Fetch ───────────────────────────────────────────────────────────────
     print("\nFetching jobs (concurrent for direct ATS sources)...")
-    all_jobs = scrape_all_jobs(wlb_companies, verbose=args.verbose)
+    all_jobs = scrape_all_jobs(wlb_companies, verbose=args.verbose, dice_cache_path=args.dice_cache)
     print(f"  {len(all_jobs)} total raw postings retrieved.")
 
     # ── 2. Apply title / remote / employment-type / company-list filters ───────

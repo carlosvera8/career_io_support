@@ -23,6 +23,7 @@ import re
 import time
 import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import json
 
 import requests
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
@@ -637,13 +638,36 @@ def fetch_arbeitnow_jobs() -> list[dict]:
     return results
 
 
+# ── Dice (MCP cache) ───────────────────────────────────────────────────────────
+
+def load_dice_cache(cache_path: str) -> list[dict]:
+    """Load pre-fetched Dice jobs written by Claude's MCP tool.
+
+    The cache is a JSON array of objects already normalized to the standard schema.
+    Returns an empty list if the file is missing or malformed.
+    """
+    try:
+        with open(cache_path, encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, list):
+            return []
+        return data
+    except (OSError, ValueError):
+        return []
+
+
 # ── Coordinator ────────────────────────────────────────────────────────────────
 
-def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
+def scrape_all_jobs(
+    companies: list[dict],
+    verbose: bool = False,
+    dice_cache_path: str | None = None,
+) -> list[dict]:
     """Fetch jobs from all sources and return a flat normalized list.
 
     Greenhouse, Lever, and Ashby are queried per-company using a thread pool.
-    Jobicy, RemoteOK, and Remotive are queried once globally.
+    Jobicy, RemoteOK, Remotive, and other aggregators are queried once globally.
+    If dice_cache_path is provided, pre-fetched Dice jobs are loaded from that file.
     """
     all_jobs: list[dict] = []
     failed_companies: list[str] = []
@@ -765,6 +789,17 @@ def scrape_all_jobs(companies: list[dict], verbose: bool = False) -> list[dict]:
         all_jobs.extend(jobs)
     except Exception as exc:
         failed_companies.append(f"ArbeitNow ({exc})")
+
+    if dice_cache_path:
+        if verbose:
+            print(f"[Dice] Loading cache from {dice_cache_path}...")
+        try:
+            jobs = load_dice_cache(dice_cache_path)
+            if verbose:
+                print(f"  {len(jobs)} jobs loaded")
+            all_jobs.extend(jobs)
+        except Exception as exc:
+            failed_companies.append(f"Dice cache ({exc})")
 
     if failed_companies:
         print(f"\n[WARN] Failed sources ({len(failed_companies)}): {', '.join(failed_companies[:20])}")

@@ -1,15 +1,27 @@
 company_name,job_title,url,salary_info,source,glassdoor_wlb
-Dropbox,Data Scientist,https://jobs.dropbox.com/listing/7762009?gh_jid=7762009,unknown (salary not listed),greenhouse,4.2
-Dropbox,PhD Machine Learning Intern (Summer 2026),https://jobs.dropbox.com/listing/7368677?gh_jid=7368677,unknown (salary not listed),greenhouse,4.2
 Dropbox,"Senior Data Scientist, AI Products",https://jobs.dropbox.com/listing/7729761?gh_jid=7729761,"$173,700+ (listed)",greenhouse,4.2
+Dropbox,"Senior Data Scientist, Marketing",https://jobs.dropbox.com/listing/7680911?gh_jid=7680911,"$173,700+ (listed)",greenhouse,4.2
+Airbnb,"Senior Machine Learning Engineer, Trust",https://careers.airbnb.com/positions/7700249?gh_jid=7700249,"$191,000+ (listed)",greenhouse,4.1
+Airbnb,"Senior Staff Data Scientist, Guest & Host Marketplace AI",https://careers.airbnb.com/positions/7107054?gh_jid=7107054,"$224,000+ (listed)",greenhouse,4.1
+Airbnb,"Senior Staff Machine Learning Engineer, Communication & Connectivity",https://careers.airbnb.com/positions/7005605?gh_jid=7005605,"$244,000+ (listed)",greenhouse,4.1
+Airbnb,"Senior Staff Machine Learning Engineer, Trust",https://careers.airbnb.com/positions/7592146?gh_jid=7592146,"$244,000+ (listed)",greenhouse,4.1
+Airbnb,Staff Data Scientist - AI-enabled Product Understanding (Inference),https://careers.airbnb.com/positions/7360248?gh_jid=7360248,"$194,000+ (listed)",greenhouse,4.1
+Airbnb,"Staff Data Scientist, Marketplace Optimization and Ranking",https://careers.airbnb.com/positions/7705161?gh_jid=7705161,"$194,000+ (listed)",greenhouse,4.1
+Airbnb,"Staff Data Scientist, Pricing",https://careers.airbnb.com/positions/7705262?gh_jid=7705262,"$194,000+ (listed)",greenhouse,4.1
+Airbnb,"Staff GenAI Backend Engineer, Automation Foundation",https://careers.airbnb.com/positions/7463421?gh_jid=7463421,"$204,000+ (listed)",greenhouse,4.1
+Airbnb,Staff Machine Learning Engineer - Community Support Engineering,https://careers.airbnb.com/positions/7116975?gh_jid=7116975,"$204,000+ (listed)",greenhouse,4.1
+Airbnb,"Staff Machine Learning Engineer, Listings and Host Tools Data and AI",https://careers.airbnb.com/positions/7454348?gh_jid=7454348,"$204,000+ (listed)",greenhouse,4.1
 Twilio,Staff Machine Learning Engineer (L4),https://job-boards.greenhouse.io/twilio/jobs/7716287,"$188,240 - $235,300 (listed)",greenhouse,4.0
+Datadog,Senior AI Engineer - APM Integrations,https://careers.datadoghq.com/detail/7582805/?gh_jid=7582805,unknown (salary not listed),greenhouse,4.2
+Datadog,Staff AI Engineer - MCP Services,https://careers.datadoghq.com/detail/7627404/?gh_jid=7627404,unknown (salary not listed),greenhouse,4.2
+Datadog,Staff AI Engineer - Notebooks ,https://careers.datadoghq.com/detail/7627445/?gh_jid=7627445,unknown (salary not listed),greenhouse,4.2
 Reddit,"Director of Machine Learning, Safety & Mods",https://job-boards.greenhouse.io/reddit/jobs/7430544,"$265,800+ (listed)",greenhouse,4.0
 Reddit,"Machine Learning Engineer, Ads",https://job-boards.greenhouse.io/reddit/jobs/7131932,"$185,800+ (listed)",greenhouse,4.0
 Reddit,"Principal Data Scientist, Ads",https://job-boards.greenhouse.io/reddit/jobs/7330347,"$268,000+ (listed)",greenhouse,4.0
 Reddit,"Senior Data Scientist, Ads",https://job-boards.greenhouse.io/reddit/jobs/6042236,"$190,800+ (listed)",greenhouse,4.0
 Reddit,"Senior Data Scientist, Consumer",https://job-boards.greenhouse.io/reddit/jobs/7275414,"$190,800+ (listed)",greenhouse,4.0
 Reddit,Senior Machine Learning Engineer ,https://job-boards.greenhouse.io/reddit/jobs/7697512,"$185,800+ (listed)",greenhouse,4.0
-Reddit,"Senior Machine Learning Engineer, Ads",https://job-boards.greenhouse.io/reddit/jobs/6960831,"$216,700+ (listed)",greenhouse,4.0
+Reddit,"Senior Machine Learning Engineer, Ads",https://job-boards.greenhouse.io/reddit/jobs/6960833,unknown (salary not listed),greenhouse,4.0
 Reddit,"Senior Machine Learning Engineer, Core Experience and Growth",https://job-boards.greenhouse.io/reddit/jobs/7391392,"$216,700+ (listed)",greenhouse,4.0
 Reddit,"Senior Machine Learning Engineer, Dev Platform Data and Discovery",https://job-boards.greenhouse.io/reddit/jobs/7377109,"$216,700+ (listed)",greenhouse,4.0
 Reddit,"Senior  Machine Learning Engineer, ML Training Platform ",https://job-boards.greenhouse.io/reddit/jobs/7074776,"$216,700+ (listed)",greenhouse,4.0
@@ -26,27 +38,36 @@ Reddit,"Staff Machine Learning Engineer, Consumer ",https://job-boards.greenhous
 Reddit,"Staff Machine Learning Engineer, GenAI Platform",https://job-boards.greenhouse.io/reddit/jobs/7772523,"$253,300+ (listed)",greenhouse,4.0
 Reddit,Staff Machine Learning Systems Engineer,https://job-boards.greenhouse.io/reddit/jobs/7731788,"$230,000+ (listed)",greenhouse,4.0
 Reddit,"Staff Research Engineer, Pre-training Science",https://job-boards.greenhouse.io/reddit/jobs/7554999,"$230,000+ (listed)",greenhouse,4.0
-Airbnb,"Senior Staff Data Scientist, Guest & Host Marketplace AI",https://careers.airbnb.com/positions/7107054?gh_jid=7107054,"$224,000+ (listed)",greenhouse,4.1
-Airbnb,"Senior Staff Machine Learning Engineer, Communication & Connectivity",https://careers.airbnb.com/positions/7005605?gh_jid=7005605,"$244,000+ (listed)",greenhouse,4.1
-Airbnb,"Senior Staff Machine Learning Engineer, Trust",https://careers.airbnb.com/positions/7592146?gh_jid=7592146,"$244,000+ (listed)",greenhouse,4.1
-Airbnb,Staff Data Scientist - AI-enabled Product Understanding (Inference),https://careers.airbnb.com/positions/7360248?gh_jid=7360248,"$194,000+ (listed)",greenhouse,4.1
-Airbnb,"Staff Data Scientist, Marketplace",https://careers.airbnb.com/positions/7415829?gh_jid=7415829,"$194,000+ (listed)",greenhouse,4.1
-Airbnb,"Staff Data Scientist, Marketplace Optimization and Ranking",https://careers.airbnb.com/positions/7705161?gh_jid=7705161,"$194,000+ (listed)",greenhouse,4.1
-Airbnb,"Staff Data Scientist, Pricing",https://careers.airbnb.com/positions/7705262?gh_jid=7705262,"$194,000+ (listed)",greenhouse,4.1
-Airbnb,"Staff GenAI Backend Engineer, Automation Foundation",https://careers.airbnb.com/positions/7463421?gh_jid=7463421,"$204,000+ (listed)",greenhouse,4.1
-Airbnb,Staff Machine Learning Engineer - Community Support Engineering,https://careers.airbnb.com/positions/7116975?gh_jid=7116975,"$204,000+ (listed)",greenhouse,4.1
-Airbnb,"Staff Machine Learning Engineer, Listings and Host Tools Data and AI",https://careers.airbnb.com/positions/7454348?gh_jid=7454348,"$204,000+ (listed)",greenhouse,4.1
-Waymo,"ML Engineer, Foundation Model Evaluation",https://careers.withwaymo.com/jobs?gh_jid=7536948,"$170,000+ (listed)",greenhouse,4.2
-Datadog,Senior AI Engineer - APM Integrations,https://careers.datadoghq.com/detail/7582802/?gh_jid=7582802,unknown (salary not listed),greenhouse,4.2
-Datadog,Staff AI Engineer - MCP Services,https://careers.datadoghq.com/detail/7627410/?gh_jid=7627410,unknown (salary not listed),greenhouse,4.2
-Datadog,Staff AI Engineer - Notebooks ,https://careers.datadoghq.com/detail/7627429/?gh_jid=7627429,unknown (salary not listed),greenhouse,4.2
-Gusto,"Staff Applied AI and Machine Learning Engineer, Payments & Risk",https://job-boards.greenhouse.io/gusto/jobs/7235805,"$225,000 - $285,000 (listed)",greenhouse,4.2
-Affirm,"Senior Staff Machine Learning Engineer, (ML Underwriting)",https://job-boards.greenhouse.io/affirm/jobs/7550524003,"$206,000 - $256,000 (listed)",greenhouse,4.0
+Waymo,"ML Engineer, Foundation Model Infrastructure",https://careers.withwaymo.com/jobs?gh_jid=7536801,"$204,000+ (listed)",greenhouse,4.2
+Affirm,"Senior Staff Machine Learning Engineer, (ML Underwriting)",https://job-boards.greenhouse.io/affirm/jobs/7550522003,"$260,000 - $310,000 (listed)",greenhouse,4.0
 Databricks,AI Engineer - FDE (Forward Deployed Engineer),https://databricks.com/company/careers/open-positions/job?gh_jid=8099751002,unknown (salary not listed),greenhouse,4.3
 Celonis,Senior Applied AI Engineer - Energy Industry,https://job-boards.greenhouse.io/celonis/jobs/7680930003?gh_jid=7680930003,unknown (salary not listed),greenhouse,4.2
+Sprout Social,Senior ML Ops Engineer,https://sproutsocial.com/careers/open-positions/7623618/?gh_jid=7623618,unknown (salary not listed),greenhouse,4.1
+Abnormal Security,Machine Learning Engineer II - Behavioral Security Products,https://abnormal.ai/careers/jobs/7679778003?gh_jid=7679778003,unknown (salary not listed),greenhouse,4.2
+Abnormal Security,Senior Machine Learning Engineer - Attack Detection,https://abnormal.ai/careers/jobs/7602978003?gh_jid=7602978003,"$191,300+ (listed)",greenhouse,4.2
+Abnormal Security,Staff Software Engineer - GenAI Innovations,https://abnormal.ai/careers/jobs/7593366003?gh_jid=7593366003,"$210,400+ (listed)",greenhouse,4.2
 15Five,Staff Data Scientist,https://jobs.lever.co/15five/75aa47df-1360-4fb4-b7ba-abbfc7a5f29b,unknown (salary not listed),lever,4.3
-ElevenLabs,Research Engineer,https://jobs.ashbyhq.com/elevenlabs/3d650946-5ac2-4729-9ae4-129c43fcd0b5,unknown (salary not listed),ashby,4.3
 Character AI,"Research Engineer, Post-Training (All Industry Levels)",https://jobs.ashbyhq.com/character/449bf7c1-41d7-47a4-89a7-0ee0b31f5918,unknown (salary not listed),ashby,4.2
 Character AI,"Research Engineer, ML Systems (All Industry Levels)",https://jobs.ashbyhq.com/character/3ab40c3d-63bd-4634-a126-5a3d25d3263b,unknown (salary not listed),ashby,4.2
 Character AI,"Staff Data Scientist, Trust & Safety",https://jobs.ashbyhq.com/character/07df7a5b-a285-4bfb-bef0-ee962efe3ab8,unknown (salary not listed),ashby,4.2
+Contextual AI,Founding AI Engineer,https://jobs.ashbyhq.com/contextual/63056a15-ced1-4621-b739-a99c962718a9,unknown (salary not listed),ashby,4.2
+Baseten,Post-Training Research Scientist,https://jobs.ashbyhq.com/baseten/7c9d2bb0-ac03-4a3c-86c3-cf720cd314e8,unknown (salary not listed),ashby,4.2
+Baseten,Post-Training Applied Researcher,https://jobs.ashbyhq.com/baseten/2d18b2aa-b6fc-4f1c-8936-33b03255a090,unknown (salary not listed),ashby,4.2
+Baseten,Post-Training Research Engineer,https://jobs.ashbyhq.com/baseten/68328a94-f785-463b-a3d7-b0dfc11839b5,unknown (salary not listed),ashby,4.2
+Cartesia AI,"Research Engineer, Data",https://jobs.ashbyhq.com/cartesia/38826565-2205-452e-9381-0468a439067e,unknown (salary not listed),ashby,4.2
+Cartesia AI,"Research Engineer, Data (India)",https://jobs.ashbyhq.com/cartesia/dc61071c-63b8-4df3-8989-7ca8442bdaaf,unknown (salary not listed),ashby,4.2
+ElevenLabs,Research Engineer,https://jobs.ashbyhq.com/elevenlabs/3d650946-5ac2-4729-9ae4-129c43fcd0b5,unknown (salary not listed),ashby,4.3
+Harvey AI,"Senior Data Scientist, Marketing",https://jobs.ashbyhq.com/harvey/d03dcaae-05de-4344-aebc-803993827922,"$170,000 - $200,000 (listed)",ashby,4.3
+Harvey AI,"Senior Data Scientist, GTM",https://jobs.ashbyhq.com/harvey/ca540d46-f031-4708-bec9-6f84d0245f8e,"$170,000 - $200,000 (listed)",ashby,4.3
+Cohere (Ashby),"Senior Member of Technical Staff, Multimodal AI",https://jobs.ashbyhq.com/cohere/443368a3-6276-4b90-9671-27fed40fd6d2,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),"Senior Research Engineer, Model Evaluation",https://jobs.ashbyhq.com/cohere/cb5d588c-5637-423a-968b-bf637ee2caf9,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),"Member of Technical Staff, Integration/RL Team (Research Engineer)",https://jobs.ashbyhq.com/cohere/e9ef9420-88e5-403b-82e8-1c36fa010d4d,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),"Senior Research Scientist, Cohere Labs",https://jobs.ashbyhq.com/cohere/7ec9eaf4-8cfc-4977-9041-86f73e7ab10b,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),"Senior Research Scientist, Model Evaluation",https://jobs.ashbyhq.com/cohere/830c613b-d4bf-4673-ab33-46ccc12cc415,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),"Staff Research Engineer, Model Efficiency",https://jobs.ashbyhq.com/cohere/c80f0fe9-3fc4-49fe-9f26-a7115350b1fc,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),Applied AI Engineer – Agentic Workflows,https://jobs.ashbyhq.com/cohere/1fa01a03-9253-4f62-8f10-0fe368b38cb9,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),Applied AI Engineer - Agentic Workflows (Singapore),https://jobs.ashbyhq.com/cohere/9c18b199-cd1f-4ef3-9fab-ce05589348ae,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),Applied AI Engineer – Agentic Workflows (Korea),https://jobs.ashbyhq.com/cohere/031c2335-db85-4265-8a88-a54b911be36a,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),Research Engineer,https://jobs.ashbyhq.com/cohere/1a5925d0-41bd-4549-9b78-f427a2dda922,unknown (salary not listed),ashby,4.3
+Cohere (Ashby),Lead Data Scientist,https://jobs.ashbyhq.com/cohere/39cab400-c976-41d9-9002-880ac6985b64,unknown (salary not listed),ashby,4.3
 Extend,Data Scientist Claim Experience Analytics,https://remoteOK.com/remote-jobs/remote-data-scientist-claim-experience-analytics-extend-1130934,unknown (salary not listed),remoteok,
