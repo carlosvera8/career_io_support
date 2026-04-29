@@ -54,7 +54,7 @@ Claude will search Dice for remote full-time ML/AI roles across multiple keyword
 **Step 2 — Run the pipeline with the cache**
 
 ```bash
-run.bat --dice-cache output/dice_cache.json
+.\run.bat --dice-cache output/dice_cache.json
 ```
 
 The cache is optional — omitting `--dice-cache` runs the pipeline as normal without Dice results. Refresh the cache whenever you want up-to-date Dice listings.
