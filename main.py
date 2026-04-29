@@ -23,7 +23,7 @@ from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
 from src.companies import get_high_wlb_companies, get_all_company_names, get_company_by_name
-from src.filters import apply_all_filters, meets_salary_threshold, matches_title, is_remote, is_full_time
+from src.filters import apply_all_filters, meets_salary_threshold, matches_title, is_remote, is_full_time, is_us_eligible
 from src.salary import get_levels_salary, parse_salary_estimate
 from src.scraper import scrape_all_jobs
 
@@ -166,6 +166,11 @@ def parse_args() -> argparse.Namespace:
         help="Path to a dice_cache.json file produced by Claude's MCP tool.",
     )
     parser.add_argument(
+        "--no-us-filter",
+        action="store_true",
+        help="Include roles not explicitly open to US applicants (worldwide search).",
+    )
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Print per-source fetch stats and reasons for skipped jobs.",
@@ -196,9 +201,10 @@ def main() -> None:
     print(f"  {len(all_jobs)} total raw postings retrieved.")
 
     # ── 2. Apply title / remote / employment-type / company-list filters ───────
+    us_only = not args.no_us_filter
     candidates = []
     skip_counts = {
-        "company": 0, "title": 0, "remote": 0, "employment": 0,
+        "company": 0, "title": 0, "remote": 0, "us": 0, "employment": 0,
     }
 
     for job in all_jobs:
@@ -218,12 +224,15 @@ def main() -> None:
             if not is_remote(job):
                 skip_counts["remote"] += 1
                 continue
+            if us_only and not is_us_eligible(job):
+                skip_counts["us"] += 1
+                continue
             if not is_full_time(job):
                 skip_counts["employment"] += 1
                 continue
             candidates.append(job)
         else:
-            if apply_all_filters(job, company_names):
+            if apply_all_filters(job, company_names, us_only=us_only):
                 candidates.append(job)
 
     if args.verbose:
@@ -231,6 +240,7 @@ def main() -> None:
             f"\n  Filtered out: {skip_counts['company']} wrong company, "
             f"{skip_counts['title']} wrong title, "
             f"{skip_counts['remote']} not remote, "
+            f"{skip_counts['us']} non-US location, "
             f"{skip_counts['employment']} not full-time."
         )
     print(f"  {len(candidates)} candidates after filtering.")

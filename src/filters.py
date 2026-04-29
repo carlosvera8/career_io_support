@@ -92,6 +92,48 @@ def is_remote(job: dict) -> bool:
     return False
 
 
+# ── US eligibility ─────────────────────────────────────────────────────────────
+
+_US_POSITIVE_PATTERN = re.compile(
+    r"\b(usa|u\.s\.a?|united\s+states|north\s+america|americas"
+    r"|worldwide|anywhere|global|international)\b"
+    r"|\bus[\s\-]remote\b|\bremote[\s\-]us\b",
+    re.IGNORECASE,
+)
+
+_NON_US_EXCLUSIVE_PATTERN = re.compile(
+    r"\b(europe|eu\b|uk\b|united\s+kingdom|germany|france|spain|italy"
+    r"|netherlands|poland|portugal|sweden|norway|denmark|finland|austria"
+    r"|belgium|switzerland|australia|new\s+zealand|india|asia|apac"
+    r"|latam|latin\s+america|africa|middle\s+east|emea)\b",
+    re.IGNORECASE,
+)
+
+_GENERIC_REMOTE = re.compile(r"^\s*(remote|anywhere|worldwide|)\s*$", re.IGNORECASE)
+
+
+def is_us_eligible(job: dict) -> bool:
+    """Return True if the job appears open to US-based applicants.
+
+    Logic:
+    - Blank or generic location ("Remote", "Anywhere") → True (assume worldwide)
+    - Explicitly US-positive keyword → True
+    - Only non-US regions mentioned → False
+    - Ambiguous (e.g. city name only) → True
+    """
+    location = job.get("location_raw", "") or ""
+    if _GENERIC_REMOTE.match(location):
+        return True
+    if _US_POSITIVE_PATTERN.search(location):
+        return True
+    if _NON_US_EXCLUSIVE_PATTERN.search(location):
+        # One more check: maybe the location mentions US alongside non-US regions
+        if re.search(r"\b(usa?|united\s+states|north\s+america)\b", location, re.IGNORECASE):
+            return True
+        return False
+    return True
+
+
 # ── Employment type ────────────────────────────────────────────────────────────
 
 EXCLUDE_TYPE_PATTERN = re.compile(
@@ -215,8 +257,8 @@ def _format_salary_range(low: int | None, high: int | None) -> str:
 
 # ── Combined filter ────────────────────────────────────────────────────────────
 
-def apply_all_filters(job: dict, company_names: set[str]) -> bool:
-    """Run title, remote, full-time, and company-list filters.
+def apply_all_filters(job: dict, company_names: set[str], us_only: bool = True) -> bool:
+    """Run title, remote, US-eligibility, full-time, and company-list filters.
 
     For aggregator sources (jobicy, remoteok, remotive) the company-list filter
     is skipped — those sources are already category-filtered by the API.
@@ -234,6 +276,9 @@ def apply_all_filters(job: dict, company_names: set[str]) -> bool:
         return False
 
     if not is_remote(job):
+        return False
+
+    if us_only and not is_us_eligible(job):
         return False
 
     if not is_full_time(job):
